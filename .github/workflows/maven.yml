@@ -1,0 +1,66 @@
+name: CI - Maven
+
+on:
+  push:
+    branches: [ develop, main ]
+  pull_request:
+    branches: [ develop, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build, test and package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17 and enable Maven cache
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Cache additional files (pom lock)
+        uses: actions/cache@v3
+        with:
+          # cache target and local maven repository as a fallback
+          path: |
+            ~/.m2/repository
+            target
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Display Java version
+        run: java -version
+
+      - name: Build with Maven (tests + package)
+        run: |
+          mvn -B -U -V clean verify
+
+      - name: Package (create executable jar)
+        if: success()
+        run: mvn -B -DskipTests=true package
+
+      - name: Upload built JAR artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/**
+
+      - name: Post job summary
+        if: always()
+        run: |
+          echo "Maven build finished. Artifacts uploaded: app-jar, surefire-reports"
