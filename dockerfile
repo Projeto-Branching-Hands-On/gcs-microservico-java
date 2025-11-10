@@ -5,7 +5,7 @@
 ########################################
 # STAGE 1: Build (Maven)
 ########################################
-FROM maven:3.9-openjdk-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /workspace
 
