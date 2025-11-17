@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usuários</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">Usuários</div>
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="listar.html">Listar Usuários</a>
+        <a href="criar.html">Criar Usuário</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <h1>Lista de Usuários</h1>
+        <p>Todos os usuários cadastrados no sistema Spring Boot.</p>
+    </section>
+
+    <section>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+
+            <tbody id="user-table-body">
+                <!-- As linhas serão inseridas via JavaScript -->
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2025 - Projeto Java</p>
+</footer>
+
+
+<!-- =========== SCRIPT =========== -->
+<script>
+    async function carregarUsuarios() {
+        try {
+            const resposta = await fetch("/usuarios");
+            const usuarios = await resposta.json();
+
+            const tbody = document.getElementById("user-table-body");
+            tbody.innerHTML = "";
+
+            usuarios.forEach(usuario => {
+                const tr = document.createElement("tr");
+
+                tr.innerHTML = `
+                    <td>${usuario.id}</td>
+                    <td>${usuario.nome}</td>
+                    <td>${usuario.email}</td>
+                    <td>
+                        <a href="editar.html?id=${usuario.id}" class="btn">Editar</a>
+                        <a href="excluir.html?id=${usuario.id}" class="btn-danger">Excluir</a>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+        } catch (e) {
+            console.error("Erro ao carregar usuários:", e);
+        }
+    }
+
+    carregarUsuarios();
+</script>
+
+</body>
+</html>

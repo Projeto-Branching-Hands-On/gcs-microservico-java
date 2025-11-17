@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excluir Usuário</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">Excluir Usuário</div>
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="listar.html">Listar Usuários</a>
+    </nav>
+</header>
+
+<main class="container">
+    <h1>Confirmar Exclusão</h1>
+
+    <div class="card" style="text-align:center;">
+        <p>Tem certeza que deseja excluir o usuário:</p>
+
+        <h2 id="user-name">Carregando...</h2>
+        <p id="user-id"></p>
+
+        <button id="btn-excluir" class="btn-danger" style="margin-right: 10px;">
+            Excluir
+        </button>
+
+        <a href="listar.html" class="btn">Cancelar</a>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2025 - Projeto Java</p>
+</footer>
+
+<script>
+    // --- EXTRAI O ID DA URL ---
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("id");
+
+    const nameEl = document.getElementById("user-name");
+    const idEl = document.getElementById("user-id");
+    const btnExcluir = document.getElementById("btn-excluir");
+
+    if (!userId) {
+        nameEl.textContent = "Usuário não encontrado";
+    } else {
+        carregarUsuario(userId);
+    }
+
+    // --- OBTÉM DADOS DO USUÁRIO ---
+    async function carregarUsuario(id) {
+        try {
+            const response = await fetch(`/usuarios/${id}`);
+
+            if (!response.ok) {
+                nameEl.textContent = "Usuário não encontrado";
+                idEl.textContent = "";
+                return;
+            }
+
+            const usuario = await response.json();
+
+            nameEl.textContent = usuario.nome;
+            idEl.textContent = `ID: ${usuario.id}`;
+
+        } catch (e) {
+            console.error("Erro ao carregar usuário:", e);
+            nameEl.textContent = "Erro ao carregar usuário.";
+        }
+    }
+
+    // --- EXCLUI USUÁRIO ---
+    btnExcluir.addEventListener("click", async () => {
+        if (!confirm("Tem certeza que deseja excluir este usuário?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/usuarios/${userId}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                alert("Usuário excluído com sucesso!");
+                window.location.href = "listar.html";
+            } else {
+                alert("Erro ao excluir usuário.");
+            }
+
+        } catch (e) {
+            console.error("Erro ao excluir:", e);
+            alert("Falha ao excluir usuário.");
+        }
+    });
+</script>
+
+</body>
+</html>
