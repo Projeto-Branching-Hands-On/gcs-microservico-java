@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuário</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">Editar Usuário</div>
+    <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="listar.html">Listar Usuários</a>
+    </nav>
+</header>
+
+<main class="container">
+    <h1>Editar Usuário</h1>
+
+    <form id="edit-form" class="form">
+        <label>ID:</label>
+        <input type="text" id="id" disabled>
+
+        <label>Nome:</label>
+        <input type="text" id="nome" required>
+
+        <label>Email:</label>
+        <input type="email" id="email" required>
+
+        <label>Cargo:</label>
+        <input type="text" id="cargo" required>
+
+        <button class="btn" type="submit">Salvar Alterações</button>
+    </form>
+</main>
+
+<footer class="footer">
+    <p>© 2025 - Projeto Java</p>
+</footer>
+
+<script>
+    // Pegando o ID da URL
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("id");
+
+    const idField = document.getElementById("id");
+    const nomeField = document.getElementById("nome");
+    const emailField = document.getElementById("email");
+    const cargoField = document.getElementById("cargo");
+
+    if (!userId) {
+        alert("Usuário não encontrado.");
+    } else {
+        carregarUsuario(userId);
+    }
+
+    // --- GET: Carrega dados do usuário ---
+    async function carregarUsuario(id) {
+        try {
+            const response = await fetch(`/usuarios/${id}`);
+
+            if (!response.ok) {
+                alert("Usuário não encontrado!");
+                return;
+            }
+
+            const usuario = await response.json();
+
+            idField.value = usuario.id;
+            nomeField.value = usuario.nome;
+            emailField.value = usuario.email;
+            cargoField.value = usuario.cargo;
+
+        } catch (e) {
+            console.error("Erro ao carregar usuário:", e);
+        }
+    }
+
+    // --- PUT: Atualiza o usuário ---
+    document.getElementById("edit-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const dadosAtualizados = {
+            nome: nomeField.value,
+            email: emailField.value,
+            senha: "123", // pode ser ignorado no backend
+            cargo: cargoField.value
+        };
+
+        try {
+            const response = await fetch(`/usuarios/${userId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dadosAtualizados)
+            });
+
+            if (response.ok) {
+                alert("Usuário atualizado com sucesso!");
+                window.location.href = "listar.html";
+            } else {
+                const erro = await response.json();
+                alert("Erro: " + erro.mensagem);
+            }
+
+        } catch (e) {
+            console.error("Erro ao atualizar:", e);
+            alert("Erro ao atualizar usuário.");
+        }
+    });
+</script>
+
+</body>
+</html>
